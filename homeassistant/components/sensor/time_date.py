@@ -5,6 +5,7 @@ For more details about this platform, please refer to the documentation at
 https://home-assistant.io/components/sensor.time_date/
 """
 from datetime import timedelta
+from datetime import datetime
 import asyncio
 import logging
 
@@ -29,6 +30,7 @@ OPTION_TYPES = {
     'time_date': 'Time & Date',
     'beat': 'Internet Time',
     'time_utc': 'Time (UTC)',
+    'day_year': 'Day of Year',
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -83,6 +85,8 @@ class TimeDateSensor(Entity):
             return 'mdi:calendar-clock'
         elif 'date' in self.type:
             return 'mdi:calendar'
+        elif 'day' in self.type:
+            return 'calendar-today'
         return 'mdi:clock'
 
     def get_next_interval(self, now=None):
@@ -104,6 +108,7 @@ class TimeDateSensor(Entity):
         time = dt_util.as_local(time_date).strftime(TIME_STR_FORMAT)
         time_utc = time_date.strftime(TIME_STR_FORMAT)
         date = dt_util.as_local(time_date).date().isoformat()
+        day_year = datetime.now().timetuple().tm_yday
 
         # Calculate Swatch Internet Time.
         time_bmt = time_date + timedelta(hours=1)
@@ -122,6 +127,8 @@ class TimeDateSensor(Entity):
             self._state = '{}, {}'.format(time, date)
         elif self.type == 'time_utc':
             self._state = time_utc
+        elif self.type == 'day_year':
+            self._state = day_year
         elif self.type == 'beat':
             self._state = '@{0:03d}'.format(beat)
 
